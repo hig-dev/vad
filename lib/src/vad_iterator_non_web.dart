@@ -19,20 +19,20 @@ class VadIteratorNonWeb implements VadIteratorBase {
   double negativeSpeechThreshold = 0.35;
 
   /// Number of frames for redemption after speech detection.
-  int redemptionFrames = 8;
+  int redemptionFrames = 24;
 
   /// Number of samples in a frame.
   /// Default is 1536 samples for 96ms at 16kHz sample rate.
   /// * > WARNING! Silero VAD models were trained using 512, 1024, 1536 samples for 16000 sample rate and 256, 512, 768 samples for 8000 sample rate.
   /// * > Values other than these may affect model perfomance!!
   /// * In this context, audio fed to the VAD model always has sample rate 16000. It is probably a good idea to leave this at 1536.
-  int frameSamples = 1536;
+  int frameSamples = 512;
 
   /// Number of frames to pad before speech detection.
-  int preSpeechPadFrames = 1;
+  int preSpeechPadFrames = 3;
 
   /// Minimum number of speech frames to consider as valid speech.
-  int minSpeechFrames = 3;
+  int minSpeechFrames = 9;
 
   /// Sample rate of the audio data.
   int sampleRate = 16000;
@@ -63,10 +63,8 @@ class VadIteratorNonWeb implements VadIteratorBase {
 
   // Model states
   static const int _batch = 1;
-  var _hide = List.filled(
-      2, List.filled(_batch, Float32List.fromList(List.filled(64, 0.0))));
-  var _cell = List.filled(
-      2, List.filled(_batch, Float32List.fromList(List.filled(64, 0.0))));
+  var _state = List.filled(
+      2, List.filled(_batch, Float32List.fromList(List.filled(128, 0.0))));
 
   /// Callback for VAD events.
   VadEventCallback? onVadEvent;
@@ -122,10 +120,8 @@ class VadIteratorNonWeb implements VadIteratorBase {
     preSpeechBuffer.clear();
     speechBuffer.clear();
     _byteBuffer.clear();
-    _hide = List.filled(
-        2, List.filled(_batch, Float32List.fromList(List.filled(64, 0.0))));
-    _cell = List.filled(
-        2, List.filled(_batch, Float32List.fromList(List.filled(64, 0.0))));
+    _state = List.filled(
+        2, List.filled(_batch, Float32List.fromList(List.filled(128, 0.0))));
   }
 
   /// Release the VAD iterator resources.
@@ -166,26 +162,21 @@ class VadIteratorNonWeb implements VadIteratorBase {
 
     // Run model inference
     final inputOrt =
-    OrtValueTensor.createTensorWithDataList(data, [_batch, frameSamples]);
+        OrtValueTensor.createTensorWithDataList(data, [_batch, frameSamples]);
     final srOrt = OrtValueTensor.createTensorWithData(sampleRate);
-    final hOrt = OrtValueTensor.createTensorWithDataList(_hide);
-    final cOrt = OrtValueTensor.createTensorWithDataList(_cell);
+    final stateOrt = OrtValueTensor.createTensorWithDataList(_state);
     final runOptions = OrtRunOptions();
-    final inputs = {'input': inputOrt, 'sr': srOrt, 'h': hOrt, 'c': cOrt};
+    final inputs = {'input': inputOrt, 'sr': srOrt, 'state': stateOrt};
     final outputs = _session!.run(runOptions, inputs);
 
     inputOrt.release();
     srOrt.release();
-    hOrt.release();
-    cOrt.release();
+    stateOrt.release();
     runOptions.release();
 
     // Output probability & update h,c recursively
     final speechProb = (outputs[0]?.value as List<List<double>>)[0][0];
-    _hide = (outputs[1]?.value as List<List<List<double>>>)
-        .map((e) => e.map((e) => Float32List.fromList(e)).toList())
-        .toList();
-    _cell = (outputs[2]?.value as List<List<List<double>>>)
+    _state = (outputs[1]?.value as List<List<List<double>>>)
         .map((e) => e.map((e) => Float32List.fromList(e)).toList())
         .toList();
     for (var element in outputs) {
@@ -203,7 +194,7 @@ class VadIteratorNonWeb implements VadIteratorBase {
           type: VadEventType.start,
           timestamp: _getCurrentTimestamp(),
           message:
-          'Speech started at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
+              'Speech started at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
         ));
         speechBuffer.addAll(preSpeechBuffer);
         preSpeechBuffer.clear();
@@ -225,7 +216,7 @@ class VadIteratorNonWeb implements VadIteratorBase {
               type: VadEventType.end,
               timestamp: _getCurrentTimestamp(),
               message:
-              'Speech ended at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
+                  'Speech ended at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
               audioData: _combineSpeechBuffer(),
             ));
           } else {
@@ -234,7 +225,7 @@ class VadIteratorNonWeb implements VadIteratorBase {
               type: VadEventType.misfire,
               timestamp: _getCurrentTimestamp(),
               message:
-              'Misfire detected at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
+                  'Misfire detected at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
             ));
           }
           // Reset counters and buffers
@@ -267,7 +258,7 @@ class VadIteratorNonWeb implements VadIteratorBase {
         type: VadEventType.end,
         timestamp: _getCurrentTimestamp(),
         message:
-        'Speech forcefully ended at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
+            'Speech forcefully ended at ${_getCurrentTimestamp().toStringAsFixed(3)}s',
         audioData: _combineSpeechBuffer(),
       ));
       // Reset state
@@ -292,7 +283,7 @@ class VadIteratorNonWeb implements VadIteratorBase {
 
   Uint8List _combineSpeechBuffer() {
     final int totalLength =
-    speechBuffer.fold(0, (sum, frame) => sum + frame.length);
+        speechBuffer.fold(0, (sum, frame) => sum + frame.length);
     final Float32List combined = Float32List(totalLength);
     int offset = 0;
     for (var frame in speechBuffer) {

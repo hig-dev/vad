@@ -20,10 +20,10 @@ abstract class VadHandlerBase {
   void startListening(
       {double positiveSpeechThreshold = 0.5,
       double negativeSpeechThreshold = 0.35,
-      int preSpeechPadFrames = 1,
-      int redemptionFrames = 8,
-      int frameSamples = 1536,
-      int minSpeechFrames = 3,
+      int preSpeechPadFrames = 3,
+      int redemptionFrames = 24,
+      int frameSamples = 512,
+      int minSpeechFrames = 9,
       bool submitUserSpeechOnPause = false});
 
   /// Stop listening for speech events
