@@ -45,7 +45,7 @@ class VadHandlerNonWeb implements VadHandlerBase {
   /// Constructor
   VadHandlerNonWeb(
       {required this.isDebug,
-      this.modelPath = 'packages/vad/assets/models/silero_vad.onnx'});
+      this.modelPath = 'packages/vad/assets/models/silero_vad.ort'});
 
   /// Handle VAD event
   void _handleVadEvent(VadEvent event) {
@@ -94,8 +94,7 @@ class VadHandlerNonWeb implements VadHandlerBase {
           redemptionFrames: redemptionFrames,
           preSpeechPadFrames: preSpeechPadFrames,
           minSpeechFrames: minSpeechFrames,
-          submitUserSpeechOnPause: submitUserSpeechOnPause
-      );
+          submitUserSpeechOnPause: submitUserSpeechOnPause);
       await _vadIterator.initModel(modelPath);
       _vadIterator.setVadEventCallback(_handleVadEvent);
       _submitUserSpeechOnPause = submitUserSpeechOnPause;

@@ -9,11 +9,11 @@ class VadHandler {
   /// Create a new instance of VadHandler
   /// [isDebug] flag
   /// [modelPath] path to the model file (optional and only used for non-web)
-  /// Default model path is 'packages/vad/assets/models/silero_vad.onnx'
+  /// Default model path is 'packages/vad/assets/models/silero_vad.ort'
   /// Returns a new instance of VadHandlerBase
   static VadHandlerBase create(
       {required bool isDebug,
-      String modelPath = 'packages/vad/assets/models/silero_vad.onnx'}) {
+      String modelPath = 'packages/vad/assets/models/silero_vad.ort'}) {
     return implementation.createVadHandler(
         isDebug: isDebug, modelPath: modelPath);
   }
