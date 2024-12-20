@@ -164,7 +164,8 @@ class VadIteratorNonWeb implements VadIteratorBase {
     final inputOrt =
         OrtValueTensor.createTensorWithDataList(data, [_batch, frameSamples]);
     final srOrt = OrtValueTensor.createTensorWithData(sampleRate);
-    final stateOrt = OrtValueTensor.createTensorWithDataList(_state);
+    final stateOrt =
+        OrtValueTensor.createTensorWithDataList(_state, [2, _batch, 128]);
     final runOptions = OrtRunOptions();
     final inputs = {'input': inputOrt, 'sr': srOrt, 'state': stateOrt};
     final outputs = _session!.run(runOptions, inputs);
