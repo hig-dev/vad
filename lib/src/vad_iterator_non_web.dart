@@ -21,12 +21,9 @@ class VadIteratorNonWeb implements VadIteratorBase {
   /// Number of frames for redemption after speech detection.
   int redemptionFrames = 24;
 
-  /// Number of samples in a frame.
-  /// Default is 1536 samples for 96ms at 16kHz sample rate.
-  /// * > WARNING! Silero VAD models were trained using 512, 1024, 1536 samples for 16000 sample rate and 256, 512, 768 samples for 8000 sample rate.
-  /// * > Values other than these may affect model perfomance!!
-  /// * In this context, audio fed to the VAD model always has sample rate 16000. It is probably a good idea to leave this at 1536.
-  int frameSamples = 512;
+  /// Number of samples in a frame. Must be 512 @ 16kHz or 256 @ 8kHz
+  /// for V5 of SileroVAD.
+  static const int frameSamples = 512;
 
   /// Number of frames to pad before speech detection.
   int preSpeechPadFrames = 3;
@@ -35,7 +32,7 @@ class VadIteratorNonWeb implements VadIteratorBase {
   int minSpeechFrames = 9;
 
   /// Sample rate of the audio data.
-  int sampleRate = 16000;
+  static const int sampleRate = 16000;
 
   /// Flag to submit user speech on pause/stop event.
   bool submitUserSpeechOnPause = false;
@@ -78,8 +75,6 @@ class VadIteratorNonWeb implements VadIteratorBase {
   /// Create a new VAD iterator.
   VadIteratorNonWeb({
     required this.isDebug,
-    required this.sampleRate,
-    required this.frameSamples,
     required this.positiveSpeechThreshold,
     required this.negativeSpeechThreshold,
     required this.redemptionFrames,
@@ -307,8 +302,6 @@ class VadIteratorNonWeb implements VadIteratorBase {
 /// Create VadHandlerNonWeb instance
 VadIteratorBase createVadIterator({
   required bool isDebug,
-  required int sampleRate,
-  required int frameSamples,
   required double positiveSpeechThreshold,
   required double negativeSpeechThreshold,
   required int redemptionFrames,
@@ -318,8 +311,6 @@ VadIteratorBase createVadIterator({
 }) {
   return VadIteratorNonWeb(
     isDebug: isDebug,
-    sampleRate: sampleRate,
-    frameSamples: frameSamples,
     positiveSpeechThreshold: positiveSpeechThreshold,
     negativeSpeechThreshold: negativeSpeechThreshold,
     redemptionFrames: redemptionFrames,

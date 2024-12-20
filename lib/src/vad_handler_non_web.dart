@@ -81,14 +81,11 @@ class VadHandlerNonWeb implements VadHandlerBase {
       double negativeSpeechThreshold = 0.35,
       int preSpeechPadFrames = 1,
       int redemptionFrames = 8,
-      int frameSamples = 1536,
       int minSpeechFrames = 3,
       bool submitUserSpeechOnPause = false}) async {
     if (!_isInitialized) {
       _vadIterator = VadIterator.create(
           isDebug: isDebug,
-          sampleRate: sampleRate,
-          frameSamples: frameSamples,
           positiveSpeechThreshold: positiveSpeechThreshold,
           negativeSpeechThreshold: negativeSpeechThreshold,
           redemptionFrames: redemptionFrames,

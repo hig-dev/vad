@@ -72,11 +72,10 @@ class Recording {
 class _MyHomePageState extends State<MyHomePage> {
   List<Recording> recordings = [];
   final audioplayers.AudioPlayer _audioPlayer = audioplayers.AudioPlayer();
-  final _vadHandler = VadHandler.create(
-      isDebug: true);
+  final _vadHandler = VadHandler.create(isDebug: true);
   bool isListening = false;
-  int frameSamples = 1536; // 1 frame = 1536 samples = 96ms
-  int minSpeechFrames = 3;
+  int frameSamples = 512; // 1 frame = 1536 samples = 96ms
+  int minSpeechFrames = 9;
   int preSpeechPadFrames = 10;
   int redemptionFrames = 8;
   bool submitUserSpeechOnPause = false;
@@ -338,7 +337,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         _vadHandler.stopListening();
                       } else {
                         _vadHandler.startListening(
-                          frameSamples: frameSamples,
                           submitUserSpeechOnPause: submitUserSpeechOnPause,
                           preSpeechPadFrames: preSpeechPadFrames,
                           redemptionFrames: redemptionFrames,

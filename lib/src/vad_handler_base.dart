@@ -22,7 +22,6 @@ abstract class VadHandlerBase {
       double negativeSpeechThreshold = 0.35,
       int preSpeechPadFrames = 3,
       int redemptionFrames = 24,
-      int frameSamples = 512,
       int minSpeechFrames = 9,
       bool submitUserSpeechOnPause = false});
 

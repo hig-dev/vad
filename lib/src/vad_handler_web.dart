@@ -14,7 +14,6 @@ external void startListeningImpl(
     double negativeSpeechThreshold,
     int preSpeechPadFrames,
     int redemptionFrames,
-    int frameSamples,
     int minSpeechFrames,
     bool submitUserSpeechOnPause);
 
@@ -72,7 +71,6 @@ class VadHandlerWeb implements VadHandlerBase {
       double negativeSpeechThreshold = 0.35,
       int preSpeechPadFrames = 1,
       int redemptionFrames = 8,
-      int frameSamples = 1536,
       int minSpeechFrames = 3,
       bool submitUserSpeechOnPause = false}) {
     if (isDebug) {
@@ -82,7 +80,6 @@ class VadHandlerWeb implements VadHandlerBase {
           'negativeSpeechThreshold: $negativeSpeechThreshold, '
           'preSpeechPadFrames: $preSpeechPadFrames, '
           'redemptionFrames: $redemptionFrames, '
-          'frameSamples: $frameSamples, '
           'minSpeechFrames: $minSpeechFrames, '
           'submitUserSpeechOnPause: $submitUserSpeechOnPause');
     }
@@ -91,7 +88,6 @@ class VadHandlerWeb implements VadHandlerBase {
         negativeSpeechThreshold,
         preSpeechPadFrames,
         redemptionFrames,
-        frameSamples,
         minSpeechFrames,
         submitUserSpeechOnPause);
   }
